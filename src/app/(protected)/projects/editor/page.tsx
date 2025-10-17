@@ -18,7 +18,7 @@ export default function Page() {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-xl font-semibold">Редактор проектов</h1>
         <Button asChild>
           <Link href="/projects/new">Создать проект</Link>
@@ -33,9 +33,9 @@ export default function Page() {
       )}
 
       {!loading && !error && (
-        <div className="grid grid-cols-1 gap-4 mt-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr">
           {projects.map((p) => (
-            <ProjectCard key={p.id} project={p} />
+            <ProjectCard key={p.id} project={p} className="h-full" />
           ))}
           {projects.length === 0 && (
             <p className="text-sm text-muted-foreground">Нет проектов. Создайте первый.</p>

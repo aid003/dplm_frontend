@@ -14,7 +14,20 @@ export type Project = {
 }
 
 export type UploadProgressResponse = {
-  progress: number
+  // Прогресс в процентах, может отсутствовать, если бэкенд возвращает пустой ответ
+  progress?: number
+  // Возможный статус с бэкенда, если он его присылает
+  status?: 'PENDING' | 'PROCESSING' | 'READY' | 'ERROR'
+}
+
+// SSE прогресс загрузки/распаковки
+export type ProgressPhase = 'queued' | 'extracting' | 'done' | 'error'
+
+export interface SseProgressEvent {
+  jobId: string
+  phase: ProgressPhase
+  percent: number
+  message?: string
 }
 
 
