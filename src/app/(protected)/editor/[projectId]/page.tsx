@@ -1,11 +1,13 @@
-type PageProps = { params: { projectId: string } }
+type PageParams = { projectId: string }
+type PageProps = { params: Promise<PageParams> }
 
-export default function Page({ params }: PageProps) {
-  const { projectId } = params
+import CodeEditor from '@/widgets/code-editor/CodeEditor'
+
+export default async function Page({ params }: PageProps) {
+  const { projectId } = await params
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-semibold">Редактор кода</h1>
-      <p className="text-sm text-muted-foreground mt-2">Заглушка. Проект: {projectId}</p>
+    <div className="p-2">
+      <CodeEditor projectId={projectId} />
     </div>
   )
 }
