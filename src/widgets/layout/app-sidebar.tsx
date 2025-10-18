@@ -65,7 +65,7 @@ export function AppSidebar() {
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <Link href="/projects/editor">
-                          <span>Редактор проекта</span>
+                          <span>Редактор проектов</span>
                         </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>

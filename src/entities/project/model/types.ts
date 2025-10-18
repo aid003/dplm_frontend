@@ -3,7 +3,7 @@ export type ProjectStatus = 'PROCESSING' | 'READY' | 'ERROR'
 export type Project = {
   id: string
   name: string
-  description?: unknown
+  description?: string | Record<string, unknown>
   zipPath: string
   extractedPath: string
   jobId: string
@@ -28,6 +28,13 @@ export interface SseProgressEvent {
   phase: ProgressPhase
   percent: number
   message?: string
+}
+
+// Типы для формы создания проекта
+export type ProjectCreateFormValues = {
+  name: string
+  description?: string
+  file: FileList
 }
 
 

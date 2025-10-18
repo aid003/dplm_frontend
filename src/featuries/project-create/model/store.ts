@@ -14,6 +14,7 @@ type ProjectCreateState = {
 
 type ProjectCreateActions = {
   create: (formData: FormData) => Promise<void>
+  reset: () => void
 }
 
 const PROJECT_STATUS_POLL_MS = 2000
@@ -90,6 +91,16 @@ export const useProjectCreateStore = create<ProjectCreateState & ProjectCreateAc
       const message = e instanceof Error ? e.message : 'Не удалось создать проект'
       set({ error: message, creating: false, status: 'ERROR' })
     }
+  },
+
+  reset() {
+    set({ 
+      creating: false, 
+      progress: 0, 
+      status: 'IDLE', 
+      project: undefined, 
+      error: undefined 
+    })
   },
 }))
 
