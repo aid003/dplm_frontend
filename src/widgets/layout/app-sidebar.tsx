@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { ChevronDown, ChevronUp, Folder, LogOut, Moon, Sun } from "lucide-react"
+import { ChevronDown, ChevronUp, Folder, LogOut, Moon, Sun, BarChart3 } from "lucide-react"
 import { clearTokens, redirectToLogin } from "@/shared/lib/auth"
 import { useThemeStore } from "@/shared/store/theme"
 import { useUserStore } from "@/shared/store/user"
@@ -71,6 +71,14 @@ export function AppSidebar() {
                     </SidebarMenuSubItem>
                   </SidebarMenuSub>
                 )}
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/analysis">
+                    <BarChart3 />
+                    <span className="group-data-[collapsible=icon]:hidden">Анализ кода</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
