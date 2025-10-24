@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useProjectsStore } from '@/entities/project/model/store'
 import { useAnalysisStore } from '@/entities/analysis/model/store'
-import { getVulnerabilities, getExplanations, getRecommendations } from '@/entities/analysis/api'
+import { getVulnerabilities, getRecommendations } from '@/entities/analysis/api'
 import type {
   AnalysisRequestDto,
   AnalysisReportDto,
@@ -117,9 +117,8 @@ export function useAnalysisPage(): UseAnalysisPageResult {
 
     setStatsLoading(true)
     try {
-      const [vulnerabilitiesResult, explanationsResult, recommendationsResult] = await Promise.allSettled([
+      const [vulnerabilitiesResult, recommendationsResult] = await Promise.allSettled([
         getVulnerabilities(projectId),
-        getExplanations(projectId),
         getRecommendations(projectId)
       ])
 
@@ -135,13 +134,13 @@ export function useAnalysisPage(): UseAnalysisPageResult {
         ).length
       }
 
-      if (explanationsResult.status === 'fulfilled') {
-        totalExplanations = explanationsResult.value.length
-      }
-
       if (recommendationsResult.status === 'fulfilled') {
         totalRecommendations = recommendationsResult.value.recommendations.length
       }
+
+      // Для объяснений пока ставим 0, так как нет отдельного API для их получения
+      // В будущем можно добавить endpoint для получения списка объяснений
+      totalExplanations = 0
 
       setProjectStats({
         totalVulnerabilities,
@@ -317,7 +316,8 @@ export function useAnalysisPage(): UseAnalysisPageResult {
             data = vulnerabilitiesResult.vulnerabilities
             break
           case 'explanations':
-            data = await getExplanations(selectedProjectId)
+            // Пока возвращаем пустой массив, так как нет API для получения списка объяснений
+            data = []
             break
           case 'recommendations':
             const recommendationsResult = await getRecommendations(selectedProjectId)

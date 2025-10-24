@@ -8,7 +8,6 @@ import type {
   VulnerabilityDto,
   RecommendationDto,
   VulnerabilityFilters,
-  ExplanationFilters,
   RecommendationFilters,
   AnalysisHistoryFilters,
   AnalysisHistoryDto,
@@ -124,31 +123,6 @@ export async function explainCode(
   )
 }
 
-// Получение объяснений кода проекта
-export async function getExplanations(
-  projectId: string,
-  filters?: ExplanationFilters
-): Promise<CodeExplanationDto[]> {
-  validateUUID(projectId, 'projectId')
-  const searchParams = new URLSearchParams()
-  
-  if (filters?.filePath) {
-    searchParams.append('filePath', filters.filePath)
-  }
-  if (filters?.symbolType) {
-    searchParams.append('symbolType', filters.symbolType)
-  }
-  if (filters?.symbolName) {
-    searchParams.append('symbolName', filters.symbolName)
-  }
-
-  const queryString = searchParams.toString()
-  const url = `/analysis/projects/${encodeURIComponent(projectId)}/explanations${
-    queryString ? `?${queryString}` : ''
-  }`
-
-  return apiGet<CodeExplanationDto[]>(url)
-}
 
 // Получение рекомендаций проекта
 export async function getRecommendations(

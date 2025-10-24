@@ -5,7 +5,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/shared/components/ui/aler
 import { Badge } from '@/shared/components/ui/badge'
 import type {
   AnalysisReportDto,
-  CodeExplanationDto,
   RecommendationDto,
   VulnerabilityDto,
 } from '@/entities/analysis/model/types'
@@ -14,8 +13,9 @@ import { AnalysisStatsCard } from '@/entities/analysis/ui/AnalysisStatsCard'
 import { VulnerabilityCard } from '@/entities/analysis/ui/VulnerabilityCard'
 import { ExplanationCard } from '@/entities/analysis/ui/ExplanationCard'
 import { RecommendationCard } from '@/entities/analysis/ui/RecommendationCard'
-import { CheckCircle, FileText, Info, Shield } from 'lucide-react'
-import { useMemo } from 'react'
+import { CheckCircle, Info, Shield, FileText } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
+import { getAnalysisResults } from '@/entities/analysis/api'
 
 interface AnalysisCompletedSectionProps {
   report: AnalysisReportDto
@@ -37,23 +37,51 @@ export function AnalysisCompletedSection({
   onViewDetails,
   isDetailsOpen,
 }: AnalysisCompletedSectionProps) {
+  const [fullReport, setFullReport] = useState<AnalysisReportDto | null>(null)
+  const [reportLoading, setReportLoading] = useState(false)
+  const [reportError, setReportError] = useState<string | null>(null)
+
+  // Загружаем полный отчет через /reports/:reportId
+  useEffect(() => {
+    if (report.id && report.status === 'COMPLETED' && !fullReport && !reportLoading) {
+      setReportLoading(true)
+      setReportError(null)
+      
+      getAnalysisResults(report.id)
+        .then((result) => {
+          setFullReport(result)
+          setReportLoading(false)
+        })
+        .catch((error) => {
+          console.error('Ошибка загрузки результатов:', error)
+          setReportError(error instanceof Error ? error.message : 'Ошибка загрузки результатов')
+          setReportLoading(false)
+        })
+    }
+  }, [report.id, report.status, fullReport, reportLoading])
+
+  // Используем данные из полного отчета или из исходного отчета
+  const currentReport = fullReport || report
+
   const vulnerabilities: VulnerabilityDto[] = useMemo(() => 
-    Array.isArray(report.result?.vulnerabilities)
-      ? (report.result?.vulnerabilities as VulnerabilityDto[])
-      : [], [report.result?.vulnerabilities]
-  )
-  
-  const explanations: CodeExplanationDto[] = useMemo(() =>
-    Array.isArray(report.result?.explanations)
-      ? (report.result?.explanations as CodeExplanationDto[])
-      : [], [report.result?.explanations]
+    Array.isArray(currentReport.result?.vulnerabilities)
+      ? (currentReport.result?.vulnerabilities as VulnerabilityDto[])
+      : [], [currentReport.result?.vulnerabilities]
   )
   
   const recommendations: (string | RecommendationDto)[] = useMemo(() =>
-    Array.isArray(report.result?.recommendations)
-      ? (report.result?.recommendations as (string | RecommendationDto)[])
-      : [], [report.result?.recommendations]
+    Array.isArray(currentReport.result?.recommendations)
+      ? (currentReport.result?.recommendations as (string | RecommendationDto)[])
+      : [], [currentReport.result?.recommendations]
   )
+
+  // Для анализа типа EXPLANATION объяснение должно быть в результате
+  const explanation = useMemo(() => {
+    if (currentReport.type === 'EXPLANATION' && currentReport.result?.explanation) {
+      return { explanation: currentReport.result.explanation }
+    }
+    return null
+  }, [currentReport.type, currentReport.result?.explanation])
 
   const renderRecommendation = (recommendation: string | RecommendationDto, index: number) => {
     if (typeof recommendation === 'object') {
@@ -138,21 +166,45 @@ export function AnalysisCompletedSection({
         </Card>
       )}
 
-      {!isDetailsOpen && explanations.length > 0 && (
+      {/* Объяснение для анализа типа EXPLANATION */}
+      {!isDetailsOpen && report.type === 'EXPLANATION' && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Объяснения кода
+              Объяснение кода
             </CardTitle>
-            <CardDescription>AI-объяснения функций и компонентов</CardDescription>
+            <CardDescription>AI-объяснение на основе вашего запроса</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {explanations.map((explanation, index) => (
-                <ExplanationCard key={explanation?.id ?? `expl-${index}`} explanation={explanation} />
-              ))}
-            </div>
+            {reportLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                  <p className="text-sm text-muted-foreground">Загрузка результатов анализа...</p>
+                </div>
+              </div>
+            ) : reportError ? (
+              <Alert variant="destructive">
+                <Info className="h-4 w-4" />
+                <div>
+                  <AlertTitle>Ошибка загрузки</AlertTitle>
+                  <AlertDescription>{reportError}</AlertDescription>
+                </div>
+              </Alert>
+            ) : explanation ? (
+              <ExplanationCard explanation={explanation} />
+            ) : (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <div>
+                  <AlertTitle>Объяснение недоступно</AlertTitle>
+                  <AlertDescription>
+                    Объяснение не найдено в результате анализа.
+                  </AlertDescription>
+                </div>
+              </Alert>
+            )}
           </CardContent>
         </Card>
       )}
@@ -175,13 +227,13 @@ export function AnalysisCompletedSection({
       )}
 
       {/* Сообщение если нет результатов */}
-      {vulnerabilities.length === 0 && explanations.length === 0 && recommendations.length === 0 && (
+      {vulnerabilities.length === 0 && recommendations.length === 0 && !explanation && (
         <Alert>
           <Info className="h-4 w-4" />
           <div>
             <AlertTitle>Анализ завершен</AlertTitle>
             <AlertDescription>
-              Результаты анализа не содержат уязвимостей, объяснений или рекомендаций.
+              Результаты анализа не содержат уязвимостей, рекомендаций или объяснений.
             </AlertDescription>
           </div>
         </Alert>

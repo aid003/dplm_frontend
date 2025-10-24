@@ -101,7 +101,7 @@ export function AnalysisDetailsDrawer({ view, onClose }: AnalysisDetailsDrawerPr
 
               {view.type === 'explanations' &&
                 view.data.map((explanation: CodeExplanationDto, index: number) => (
-                  <ExplanationCard key={explanation.id ?? `expl-${index}`} explanation={explanation} />
+                  <ExplanationCard key={`expl-${index}`} explanation={explanation} />
                 ))}
 
               {view.type === 'recommendations' &&

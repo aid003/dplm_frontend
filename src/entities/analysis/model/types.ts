@@ -46,16 +46,7 @@ export interface VulnerabilityDto {
 }
 
 export interface CodeExplanationDto {
-  id: string
-  filePath: string
-  symbolName?: string
-  symbolType?: string
-  lineStart: number
-  lineEnd: number
-  summary: string
-  detailed: string
-  complexity?: number
-  createdAt: string
+  explanation: string
 }
 
 export interface RecommendationDto {
@@ -75,8 +66,8 @@ export interface RecommendationDto {
 
 export interface AnalysisResultDto {
   vulnerabilities?: VulnerabilityDto[]
-  explanations?: CodeExplanationDto[]
   recommendations?: (string | RecommendationDto)[]
+  explanation?: string // Для анализа типа EXPLANATION
   // Дополнительные поля для совместимости с реальным API
   filesScanned?: number
   totalScanTime?: number

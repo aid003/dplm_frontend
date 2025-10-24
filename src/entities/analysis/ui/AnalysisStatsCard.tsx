@@ -104,7 +104,7 @@ export function AnalysisStatsCard({
             {statsLoading ? '...' : stats.totalExplanations}
           </div>
           <p className="text-xs text-muted-foreground">
-            Функций и компонентов
+            AI-объяснения кода
           </p>
           {expandedCard === 'explanations' && (
             <div className="mt-3 pt-3 border-t">

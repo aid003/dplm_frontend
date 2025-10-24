@@ -79,7 +79,7 @@ export function AnalysisQueryModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-w-[95vw] mx-4">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             🎯 {getModalTitle()}
@@ -99,18 +99,18 @@ export function AnalysisQueryModal({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Например: как работает авторизация пользователей"
-              className="mt-1"
+              className="mt-1 w-full"
             />
           </div>
 
           <div>
             <Label className="text-sm font-medium">Популярные темы:</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2 max-h-32 overflow-y-auto">
               {QUERY_EXAMPLES.map((example, index) => (
                 <Badge
                   key={index}
                   variant="outline"
-                  className="cursor-pointer hover:bg-accent transition-colors"
+                  className="cursor-pointer hover:bg-accent transition-colors text-xs px-2 py-1"
                   onClick={() => handleExampleClick(example)}
                 >
                   {example}
@@ -144,14 +144,14 @@ export function AnalysisQueryModal({
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={handleClose}>
+        <DialogFooter className="gap-2 flex-col sm:flex-row">
+          <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
             Отмена
           </Button>
-          <Button variant="outline" onClick={handleSkip}>
+          <Button variant="outline" onClick={handleSkip} className="w-full sm:w-auto">
             Пропустить (полный анализ)
           </Button>
-          <Button onClick={handleStart}>
+          <Button onClick={handleStart} className="w-full sm:w-auto">
             {query.trim() ? 'Запустить целевой анализ' : 'Запустить полный анализ'}
           </Button>
         </DialogFooter>
